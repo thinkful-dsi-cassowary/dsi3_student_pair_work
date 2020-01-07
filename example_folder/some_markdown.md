@@ -12,4 +12,4 @@
 | - | - |
 | value | value |
 
-$\int_0^\infty \mathrm{e}^{-x}\,\mathrm{d}x$
+$$\int_0^\infty \mathrm{e}^{-x}\,\mathrm{d}x$$
