@@ -238,11 +238,76 @@ def plot_confusion_matrix(cm,
     plt.show()
 # ------- END OF MODEL ANALYSIS SELF_MADE FUNCS ----------------------|
 
+def repeats_summary(df, sort='desc', print_log=False, value_agg='none', value=0):
+    repeats_percents = []
+    print_value = []
+    for col in df.columns:
+        if value_agg == 'none':
+            value = value
+            print_value = []
+        elif value_agg == 'mode':
+            value = df[col].mode().iloc[0]
+        elif value_agg == 'mean':
+            value = df[col].mean().iloc[0]
+        elif value_agg == 'median':
+            value = df[col].median().iloc[0]
+        elif value_agg == 'max':
+            value = df[col].max().iloc[0]
+        elif value_agg == 'min':
+            value = df[col].min().iloc[0]
+        else: raise ValueError('Wrong entry for \'value_agg\'. Will accept \'mode\', \'mean\', \'median\', \'max\', \'min\'')
 
+        repeats_percents.append(len(df.loc[df[col] == value])*100/len(df))
+        print_value.append(value)
 
+    S = pd.Series(repeats_percents, index=df.columns)
+    if sort == 'desc':
+        S = S.sort_values(ascending=False)
+    elif sort == 'asc':
+        S = S.sort_values(ascending=True)
+    else: raise ValueError('Wrong entry for \'sort\'. Will accept \'asc\' or \'desc\'')
 
+    if print_log:
+        print(f'Repeated values: {print_value}\n{S}')
 
+    return S
 
+def drop_null_rows(df):
+    for col in df.columns:
+        df.drop(df.loc[df[col].isnull()].index, axis=0, inplace=True)
+    return df
+
+def similar_variables(df, target, similarity_threshold=.9, print_log=False):
+    corr = df.corr()
+
+    feature_corr = corr.drop('saleprice', axis=1).drop('saleprice', axis=0)
+    target_corr = corr.loc['saleprice']
+
+    similar_pairs = []
+    for col in feature_corr.columns:
+        for index in feature_corr.index:
+            if np.abs(feature_corr.loc[index, col]) > similarity_threshold and index != col and [col, index] not in similar_pairs:
+                similar_pairs.append([index, col])
+
+    # Then we'll find the variable in each similar pair that is less correlated (which we'll drop later)
+    drop_variables = []
+    corr_to_target = []
+
+    for pair in similar_pairs:
+        print(target_corr[pair[0]], target_corr[pair[1]])
+        if target_corr[pair[0]] < target_corr[pair[1]]:
+            drop_variables.append(pair[0])
+            corr_to_target.append(target_corr[pair[0]])
+        else:
+            drop_variables.append(pair[1])
+            corr_to_target.append(target_corr[pair[0]])
+
+    S = pd.Series(corr_to_target, index=drop_variables)
+    
+    if print_log:
+        print(S)
+    
+    return S
 
 
 # def auto_subplots(df, **kwargs):
