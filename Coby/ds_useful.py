@@ -153,7 +153,7 @@ def outliers_summary(df, threshold, range_type='iqr', **kwargs):
         
     return s
 
-def get_percentiles(df, column_name, threshold, ranage_type='iqr'):
+def get_percentiles(df, column_name, threshold, range_type='iqr'):
     min_val, max_val = get_minmax_with_threshold(df[column_name], threshold, range_type=range_type)
     
     max_percentile = df.loc[df[column_name] >= max_val, column_name].count() / len(df[column_name])
