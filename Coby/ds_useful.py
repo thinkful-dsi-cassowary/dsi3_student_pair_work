@@ -70,6 +70,53 @@ def auto_subplots(df, **kwargs):
     # plt.subplots_adjust(wspace=WSPACE, hspace=HSPACE)
     plt.tight_layout()
     plt.show()
+
+def make_subplots(df, plotfunc=None, func_args=None, func_kwargs=None, limitx=8, each_size=3, excude_cols=None, **kwargs):
+    '''
+    This function creates a series of sublots to display the distribution for all continuous variables in a DataFrame
+    It operates like a FacetGrid, but it's a little more customized.
+
+    The dimensions of the subplot (no_subplots X no_subplots) are calculated automatically by how many continuous variables are found.
+    You can use a number of kwargs to customize the output of the function. Those include:
+    kwargs:
+        limitx  -   Limits the number of subplots along the x-axis, and calculates the no_subplots on y axis from given limit
+        kind    -   Allows you to specify which type of distribution grid you'd like to use. Values include
+            -   hist: creates a matplotlib.pyplot histogram
+            -   boxplot: creates a seaborn boxplot
+                -   whis: adjust the boxplot whisker bounds
+            -   swarm: create a one-dimensional seaborn swarmplot
+
+    Returns None
+    '''
+    columns = df.columns.drop(exclude_cols, axis=1)
+    len_cols = len(columns)
+
+    try_num = len_cols
+    while True:
+        sq = math.sqrt(try_num)
+        if sq == int(sq):
+            break
+        try_num += 1
+    count_dimensions = tuple([sq, sq])
+
+    if count_dimensions[0] > limitx:
+        count_dimensions = tuple([limitx, int(len_cols/limitx + 1)])
+
+    dimensions = tuple([count_dimensions[0] * each_size, count_dimensions[1] * each_size])
+    plt.figure(figsize=dimensions)
+
+    for i, col in enumerate(columns, 1):
+        plt.subplot(count_dimensions[0], count_dimensions[1], i)
+        plotfunc(df[col], *func_args, **func_kwargs)
+        plt.title(col)
+
+    # plt.subplots_adjust(wspace=WSPACE, hspace=HSPACE)
+    plt.tight_layout()
+    plt.show()
+
+def each_plot(series, residual):
+    sns.scatterplot(x=series, y=residual)
+    plt.xlabel('Residual')
 # ------- END OF DISTRIBUTION SELF_MADE FUNCS ----------------------|
 
 # ----- FUNCTION FOR GENERAL MISSING VALUES ---------------|
@@ -289,7 +336,6 @@ def drop_null_rows(df):
         df.drop(df.loc[df[col].isnull()].index, axis=0, inplace=True)
     return df
 
-# Fix this to keep more correlated ones?
 def remove_correlated_features(dataset, target, threshold):
     col_corr = set()
     corr_matrix = dataset.drop(target, axis=1).corr()
