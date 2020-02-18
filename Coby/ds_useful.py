@@ -289,6 +289,7 @@ def drop_null_rows(df):
         df.drop(df.loc[df[col].isnull()].index, axis=0, inplace=True)
     return df
 
+# Fix this to keep more correlated ones?
 def remove_correlated_features(dataset, target, threshold):
     col_corr = set()
     corr_matrix = dataset.drop(target, axis=1).corr()
