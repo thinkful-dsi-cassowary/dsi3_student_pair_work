@@ -71,22 +71,9 @@ def auto_subplots(df, **kwargs):
     plt.tight_layout()
     plt.show()
 
-def make_subplots(df, plotfunc=None, func_args=None, func_kwargs=None, limitx=8, each_size=3, excude_cols=None, **kwargs):
+def make_subplots(df, plotfunc=None, func_args=None, func_kwargs=None, limitx=8, each_size=3, exclude_cols=None, **kwargs):
     '''
-    This function creates a series of sublots to display the distribution for all continuous variables in a DataFrame
-    It operates like a FacetGrid, but it's a little more customized.
-
-    The dimensions of the subplot (no_subplots X no_subplots) are calculated automatically by how many continuous variables are found.
-    You can use a number of kwargs to customize the output of the function. Those include:
-    kwargs:
-        limitx  -   Limits the number of subplots along the x-axis, and calculates the no_subplots on y axis from given limit
-        kind    -   Allows you to specify which type of distribution grid you'd like to use. Values include
-            -   hist: creates a matplotlib.pyplot histogram
-            -   boxplot: creates a seaborn boxplot
-                -   whis: adjust the boxplot whisker bounds
-            -   swarm: create a one-dimensional seaborn swarmplot
-
-    Returns None
+    Makes a subplot, filled with a given plotting function
     '''
     columns = df.columns.drop(exclude_cols, axis=1)
     len_cols = len(columns)
@@ -110,13 +97,8 @@ def make_subplots(df, plotfunc=None, func_args=None, func_kwargs=None, limitx=8,
         plotfunc(df[col], *func_args, **func_kwargs)
         plt.title(col)
 
-    # plt.subplots_adjust(wspace=WSPACE, hspace=HSPACE)
     plt.tight_layout()
     plt.show()
-
-def each_plot(series, residual):
-    sns.scatterplot(x=series, y=residual)
-    plt.xlabel('Residual')
 # ------- END OF DISTRIBUTION SELF_MADE FUNCS ----------------------|
 
 # ----- FUNCTION FOR GENERAL MISSING VALUES ---------------|
