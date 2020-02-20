@@ -381,6 +381,34 @@ def get_significant_category_columns(df, target, sig=True):
     
     return sig_cols
 
+def sort_by_correlation(df, target_name, sort='desc', abs=True):
+    corr_df = df.corr()
+    if sort=='asc':
+        ascending=True
+    elif sort == 'desc':
+        ascending=False
+    corr = corr_df[target_name].copy()
+    if abs:
+        corr = np.abs(corr)
+    corr.sort_values(ascending=ascending, inplace=True)
+    return corr
+
+def sort_by_categorical_var(df, target_name, sort='desc'):
+    cat_cols = df.select_dtypes('object').columns
+    stds = []
+    for col in cat_cols:
+        cats = df[col].unique()
+        cat_means = [df.loc[df[col]==cat,target_name].mean() for cat in cats]
+        col_std = np.std(cat_means)
+        stds.append(col_std)
+    s = pd.Series(stds, index=cat_cols)
+    if sort=='asc':
+        ascending = True
+    elif sort=='desc':
+        ascending=False
+    s.sort_values(ascending = ascending, inplace=True)
+    return s
+
 # def auto_subplots(df, **kwargs):
 #     '''
 #     This function creates a series of sublots to display the distribution for all continuous variables in a DataFrame
